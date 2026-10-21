@@ -1,9 +1,9 @@
 import { average, categories } from '../seller/store.js'
 export const MIN_GEO_OBSERVATIONS = 10
 export const normalize = value => value.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase()
-export function selectProducts(products,{term='',category='Todo',min='',max='',origin='',producer='',sort='popular'},views=[],reviews=[]) {
+export function selectProducts(products,{term='',category='Todo',cuisine='Todo',min='',max='',origin='',producer='',sort='popular'},views=[],reviews=[]) {
   const query=normalize(term.trim())
-  const selected=products.filter(p=>p.visible&& (category==='Todo'||p.category===category)&&normalize(`${p.name} ${p.category} ${p.maker} ${p.place} ${p.description}`).includes(query)&& (min===''||p.price>=Number(min))&&(max===''||p.price<=Number(max))&&normalize(p.place).includes(normalize(origin))&&(!producer||p.sellerId===producer))
+  const selected=products.filter(p=>p.visible&& (category==='Todo'||p.category===category)&&(cuisine==='Todo'||(p.cuisines||[]).includes(cuisine))&&normalize(`${p.name} ${p.category} ${p.maker} ${p.place} ${p.description} ${(p.cuisines||[]).join(' ')}`).includes(query)&& (min===''||p.price>=Number(min))&&(max===''||p.price<=Number(max))&&normalize(p.place).includes(normalize(origin))&&(!producer||p.sellerId===producer))
   const count=id=>views.filter(v=>v.productId===id).length
   const rating=id=>average(reviews.filter(v=>v.productId===id))
   return selected.sort((a,b)=>sort==='price-asc'?a.price-b.price:sort==='price-desc'?b.price-a.price:sort==='rating'?rating(b.id)-rating(a.id):count(b.id)-count(a.id))
