@@ -80,8 +80,18 @@ Los planes de suscripción están dirigidos a compradores. Todos los planes elim
 ---
 
 ## 5. Arquitectura del sistema
-
 GastroMadrid sigue una arquitectura cliente-servidor containerizada con Docker y orquestada mediante Kubernetes.
+
+### 5.0 Ejecución con Docker
+
+La aplicación frontend se puede empaquetar como una imagen multi-stage: Node compila la aplicación de Vite y Nginx sirve los archivos estáticos generados.
+
+```bash
+docker build -t gastromadrid .
+docker run --rm -p 8080:80 gastromadrid
+```
+
+Después, abre `http://localhost:8080`. La configuración de Nginx incluye fallback a `index.html` para que la navegación de la SPA funcione correctamente.
 
 El frontend se comunica con el backend mediante una API. El backend gestiona la lógica de la aplicación, valida la identidad del usuario con Supabase Auth, consulta MySQL y utiliza Redis como capa de caché. Las tareas en segundo plano forman parte del propio backend, mientras que el **Analytics Runner** se encarga de consultar MySQL, agregar datos y generar analíticas.
 
