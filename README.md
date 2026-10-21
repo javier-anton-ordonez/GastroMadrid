@@ -1,5 +1,12 @@
 # GastroMadrid
 
+## Estado actual — producto local e inteligencia de mercado
+
+Implementación React/Vite con catálogo de **quesos, vinos y charcutería y embutidos**, panel vendedor local y demostración de inteligencia de mercado. El objetivo actual prioriza promoción de productores y conocimiento agregado de la demanda, con colaboración institucional potencial; no existe financiación confirmada. No hay backend, acceso privado real ni transacciones. Los datos de ejemplo se distinguen de la actividad local consentida.
+
+Consulta [la implementación, las rutas, el modelo de datos y las integraciones pendientes](docs/IMPLEMENTATION.md). El documento conceptual que sigue incluye propuestas históricas de monetización y categorías más amplias; no describe funciones ya desplegadas ni modifica el alcance actual de tres categorías.
+
+
 **GastroMadrid** es una plataforma para descubrir negocios locales que ofrecen productos gastronómicos de calidad, elaborados por pequeñas empresas y productores que normalmente no tienen presencia en los canales comerciales más visibles.
 
 Su objetivo es acercar a los usuarios un catálogo gastronómico formado por pequeños productores, artesanos y negocios locales de Madrid, facilitando el descubrimiento, la visibilidad y el contacto directo entre compradores y vendedores.

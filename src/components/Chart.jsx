@@ -1,0 +1,10 @@
+import { useState } from 'react'
+export default function Chart({title,points=[],line=false,unit=''}) {
+  const [selected,setSelected]=useState(null)
+  const max=Math.max(1,...points.map(p=>p.value))
+  return <article className="dash-card chart"><h3>{title}</h3>{!points.length?<p className="empty">No hay datos suficientes para este periodo y fuente.</p>:<><div className="chart-tooltip" aria-live="polite">{selected?`${selected.label}: ${Number(selected.value.toFixed(2))} ${unit}`:'Selecciona una barra o un punto para consultar su valor.'}</div><svg viewBox="0 0 600 210" role="img" aria-label={title}>
+    {[0,1,2,3].map(i=><g key={i}><line x1="35" x2="590" y1={175-i*50} y2={175-i*50} stroke="currentColor" opacity=".12"/><text x="0" y={179-i*50} fontSize="10" fill="currentColor">{Number((max*i/3).toFixed(1))}</text></g>)}
+    {line&&<polyline fill="none" stroke="var(--coral)" strokeWidth="3" points={points.map((p,i)=>`${45+i*530/Math.max(1,points.length-1)},${175-p.value/max*150}`).join(' ')}/>}
+    {points.map((p,i)=>{const props={tabIndex:0,role:'button','aria-label':`${p.label}: ${p.value} ${unit}`,onMouseEnter:()=>setSelected(p),onFocus:()=>setSelected(p),onClick:()=>setSelected(p),onKeyDown:e=>{if(e.key==='Enter'||e.key===' ')setSelected(p)}};return line?<circle {...props} key={`${p.label}-${i}`} cx={45+i*530/Math.max(1,points.length-1)} cy={175-p.value/max*150} r="5" fill="var(--ink)"><title>{p.label}: {p.value}</title></circle>:<rect {...props} key={`${p.label}-${i}`} x={45+i*530/points.length} y={175-p.value/max*150} width={Math.max(2,450/points.length)} height={Math.max(1,p.value/max*150)} fill="var(--ink)"><title>{p.label}: {p.value}</title></rect>})}
+  </svg><details><summary>Ver valores en tabla</summary><div className="table-scroll"><table><thead><tr><th>Intervalo / elemento</th><th>Valor {unit}</th></tr></thead><tbody>{points.map((p,i)=><tr key={i}><td>{p.label}</td><td>{Number(p.value.toFixed(2))}</td></tr>)}</tbody></table></div></details></>}</article>
+}

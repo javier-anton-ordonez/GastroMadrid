@@ -1,115 +1,52 @@
-import { useMemo, useState } from 'react'
-import { StrictMode } from 'react'
+import { StrictMode, useEffect, useMemo, useRef, useState } from 'react'
 import { createRoot } from 'react-dom/client'
+import Panel from './seller/Panel'
+import Admin, { AdminGate } from './analytics/Admin'
+import { createExample, readStore, persist, recordView, recordClick, recordSearch, clearCollectedAnalytics, categories, average } from './seller/store'
+import { selectProducts } from './analytics/model'
 import './styles.css'
-
-const products = [
-  { name: 'Queso de cabra curado', maker: 'La Quesería de Miraflores', place: 'Sierra de Guadarrama', detail: 'Lácteos', image: 'https://images.unsplash.com/photo-1626957341926-98752fc2ba90?auto=format&fit=crop&w=900&q=85' },
-  { name: 'Tomate rosa de temporada', maker: 'Huerta La Vega', place: 'Villa del Prado', detail: 'Huerta', image: 'https://images.unsplash.com/photo-1546094096-0df4bcaaa337?auto=format&fit=crop&w=900&q=85' },
-  { name: 'Garnacha Centenaria', maker: 'Bodega Las Moradas', place: 'San Martín de Valdeiglesias', detail: 'Bebidas', image: 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=900&q=85' },
-  { name: 'Miel de la sierra', maker: 'Miel Antonio Simón', place: 'Torremocha de Jarama', detail: 'Despensa', image: 'https://images.unsplash.com/photo-1587049352846-4a222e784d38?auto=format&fit=crop&w=900&q=85' },
-]
-
-const categories = ['Todo', 'Huerta', 'Lácteos', 'Despensa', 'Bebidas']
-
-function Pin() {
-  return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s7-6.1 7-13a7 7 0 1 0-14 0c0 6.9 7 13 7 13Z" /><circle cx="12" cy="9" r="2.4" /></svg>
+import './platform.css'
+const euros=n=>new Intl.NumberFormat('es-ES',{style:'currency',currency:'EUR'}).format(n)
+function Pin(){return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s7-6.1 7-13a7 7 0 1 0-14 0c0 6.9 7 13 7 13Z"/><circle cx="12" cy="9" r="2.4"/></svg>}
+function Search(){return <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.7" cy="10.7" r="6.4"/><path d="m16 16 4.2 4.2"/></svg>}
+function ProductImage({product}) {return product.image?<img src={product.image} alt={product.name}/>:<div className="product-placeholder"><span aria-hidden="true">{product.category==='Quesos'?'◒':product.category==='Vinos'?'♧':'◈'}</span><small>{product.category}</small></div>}
+function ProductCard({product,onContact,onOpen,reviews}){
+ const rs=reviews.filter(r=>r.productId===product.id)
+ return <article className="product-card"><a href={`#producto/${product.id}`} onClick={()=>onOpen(product)} aria-label={`Ver ${product.name}`}><ProductImage product={product}/></a><div className="product-info"><span className="tag">{product.category}{product.demo?' · Ejemplo':''}</span><h3><a href={`#producto/${product.id}`} onClick={()=>onOpen(product)}>{product.name}</a></h3><p className="maker">{product.maker}</p><p className="place"><Pin/>{product.place}</p><div className="product-meta"><strong>{euros(product.price)}</strong><span>{rs.length?`${average(rs).toFixed(1)} ★${rs.some(r=>r.demo)?' · Ejemplo':''}`:'Sin reseñas'}</span></div><small>{product.available&&product.stock!==0?'Disponible':'No disponible'}</small><div><button className="text-button" onClick={()=>onContact(product)}>Contactar →</button></div></div></article>
 }
-
-function Search() {
-  return <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.7" cy="10.7" r="6.4" /><path d="m16 16 4.2 4.2" /></svg>
+function App(){
+ const [route,setRoute]=useState(window.location.hash||'#inicio');const [data,setData]=useState(null);const dataRef=useRef(null);const [error,setError]=useState('');const [notice,setNotice]=useState('');const [role,setRole]=useState('comprador');const [privacy,setPrivacy]=useState(false)
+ const [filters,setFilters]=useState({term:'',category:'Todo',min:'',max:'',origin:'',producer:'',sort:'popular'})
+ const [draft,setDraft]=useState('');const demo=useMemo(()=>createExample(),[])
+ useEffect(()=>{try{const initial=readStore();dataRef.current=initial;setData(initial)}catch(e){setError(e.message)}const change=()=>setRoute(window.location.hash||'#inicio');window.addEventListener('hashchange',change);return()=>window.removeEventListener('hashchange',change)},[])
+ useEffect(()=>{if(!route.startsWith('#producto/')&&route!=='#vendedor'&&route!=='#inteligencia'&&route!=='#demo-inteligencia')requestAnimationFrame(()=>document.getElementById(route.slice(1))?.scrollIntoView());else window.scrollTo(0,0)},[route])
+ function updateData(next){persist(next);dataRef.current=next;setData(next)}
+ function mutate(fn){try{const current=dataRef.current;if(!current)return;const next=fn(current);if(next!==current)updateData(next)}catch{setError('No se pudieron guardar los datos. Comprueba el espacio y los permisos del navegador.')}}
+ function showNotice(message){setNotice(message);window.setTimeout(()=>setNotice(''),4000)}
+ const products=data?.products||[]
+ // El orden público usa solo eventos locales; las reseñas sintéticas siempre se etiquetan.
+ const shown=useMemo(()=>selectProducts(products,filters,data?.views.filter(v=>!v.demo)||[],data?.reviews.filter(r=>!r.demo)||[]),[data,filters])
+ const detailId=route.startsWith('#producto/')?route.slice('#producto/'.length):null
+ const detail=products.find(p=>p.id===detailId&&p.visible)
+ useEffect(()=>{if(detailId&&detail&&data?.consent==='accepted')mutate(current=>recordView(current,detailId))},[detailId,data?.consent,!!detail])
+ function submitSearch(event,term=draft){event?.preventDefault();const next={...filters,term};const results=selectProducts(products,next);setFilters(next);setDraft(term);mutate(current=>recordSearch(current,term,results,next.category));window.location.hash='explorar';document.querySelector('#explorar')?.scrollIntoView({behavior:'smooth'})}
+ function contact(p){showNotice(`El contacto con ${p.maker} requiere conectar un directorio verificado. No se ha enviado ningún mensaje.`)}
+ function open(p){mutate(current=>recordClick(current,p.id))}
+ function consent(accepted){mutate(current=>({...current,consent:accepted?'accepted':'rejected'}));setPrivacy(false)}
+ const related=detail?products.filter(p=>p.visible&&p.id!==detail.id&&p.category===detail.category).slice(0,3):[]
+ const suggestions=['Queso artesanal','Queso de cabra','Vino tinto de Madrid','Vino blanco','Chorizo artesanal','Jamón y embutidos']
+ return <><header className="topbar"><a className="brand" href="#inicio" aria-label="GastroMadrid, inicio"><span>G</span> Gastro<span>Madrid</span><small>/ PRODUCTO LOCAL</small></a><nav aria-label="Navegación principal"><a href="#explorar">Explorar</a><a href="#productores">Productores</a><a href="#como-funciona">Cómo funciona</a><a href="#vendedor">Soy vendedor</a><a href="#inteligencia">Inteligencia de mercado</a></nav><button className="outline-button header-button" onClick={()=>showNotice('El proyecto todavía no tiene un proveedor de autenticación conectado.')}>Entrar / registrarme</button></header>
+ {error&&<div className="error global-error" role="alert">{error}<button className="secondary" onClick={()=>setError('')}>Cerrar aviso</button></div>}
+ {!data?<main className="data-state" role="status"><h1>{error?'No se pudieron cargar los datos':'Cargando GastroMadrid…'}</h1><p>{error?'Los datos almacenados no se han sobrescrito. Revisa el almacenamiento del navegador.':'Preparando el catálogo local.'}</p></main>:route==='#vendedor'?<Panel data={data} onChange={updateData}/>:route==='#inteligencia'?<AdminGate/>:route==='#demo-inteligencia'?<Admin data={demo}/>:detailId?<main className="detail-page"><a href="#explorar">← Volver al catálogo</a>{detail?<><article className="dash-card detail-grid"><div><ProductImage product={detail}/>{detail.images.slice(1).map((src,i)=><img src={src} key={i} alt={`${detail.name}, imagen adicional ${i+1}`}/>)}</div><div><p className="eyebrow">{detail.category}</p><h1>{detail.name}</h1><p>{detail.description}</p><h2>{euros(detail.price)}</h2><p><strong>Productor:</strong> {detail.maker}</p><p><strong>Origen:</strong> {detail.place}, Comunidad de Madrid</p><p>{detail.available&&detail.stock!==0?'Disponible':'No disponible'} · Stock: {detail.stock??'No especificado'}</p>{detail.demo&&<p className="demo-banner">Ficha de ejemplo. No es una oferta comercial verificada.</p>}<button className="dark-button" onClick={()=>contact(detail)}>Contactar con el productor →</button><p className="help">Las compras se acuerdan directamente. No hay pagos ni pedidos dentro de esta versión.</p></div></article><article className="dash-card"><h2>Valoraciones del producto</h2>{data.reviews.filter(r=>r.productId===detail.id).map(r=><div className="review" key={r.id}><strong>{r.stars} ★ · {r.demo?'Reseña de demostración':'Reseña registrada'}</strong><p>{r.text}</p><small>{new Date(r.date).toLocaleDateString('es-ES')}</small></div>)}{!data.reviews.some(r=>r.productId===detail.id)&&<p>Este producto todavía no tiene reseñas.</p>}</article><h2>Productos relacionados</h2><div className="products related">{related.map(p=><ProductCard key={p.id} product={p} onOpen={open} onContact={contact} reviews={data.reviews}/>)}</div>{!related.length&&<p>No hay más productos de esta categoría.</p>}</>:<h1>Producto no disponible</h1>}</main>:<main id="inicio">
+ <section className="hero"><div className="hero-kicker"><span>01</span><p className="eyebrow">COMUNIDAD DE MADRID</p></div><p className="hero-location">MADRID / LOCAL FOOD NETWORK</p><h1>Viviendo Madrid<br/><em>a través del paladar.</em></h1><p className="hero-copy">Quesos, vinos y embutidos de Madrid. Descubre el producto local y a quienes lo elaboran.</p><div className="hero-audience"><p className="audience-label">PRODUCTOS Y PRODUCTORES, MÁS CERCA</p><div className="role-switcher" aria-label="Selecciona tu perfil"><button className={role==='comprador'?'active':''} onClick={()=>setRole('comprador')}><strong>Soy comprador</strong><span>Quiero descubrir productos de Madrid.</span></button><button className={role==='empresa'?'active':''} onClick={()=>{setRole('empresa');window.location.hash='vendedor'}}><strong>Soy vendedor</strong><span>Gestionar mi catálogo y conocer su interés.</span></button></div></div><form className="search-box" onSubmit={submitSearch}><Search/><input list="search-suggestions" aria-label="Buscar productos, categorías o productores" value={draft} onChange={e=>setDraft(e.target.value)} maxLength="100" placeholder="Queso de cabra, vino tinto, chorizo…"/><datalist id="search-suggestions">{suggestions.map(s=><option key={s} value={s}/>)}</datalist><button>Buscar</button></form><div className="hero-image"><img src="https://images.unsplash.com/photo-1626957341926-98752fc2ba90?auto=format&fit=crop&w=600&q=85" alt="Selección de quesos artesanales"/><span>Producto local, cerca de ti</span><b>02</b></div></section>
+ <section className="catalog section" id="explorar"><div className="section-heading"><div><div className="section-index"><span>02</span><p className="eyebrow">CATÁLOGO GASTRONÓMICO</p></div><h2>Explora el producto local.</h2></div><span className="result-count">{shown.length} resultados</span></div><p className="demo-banner">Catálogo provisional. Las fichas marcadas «Ejemplo» y sus reseñas son sintéticas; los productos que añadas se guardan solo en este navegador.</p><div className="category-list" aria-label="Filtrar por categoría">{['Todo',...categories].map(c=><button key={c} className={filters.category===c?'active':''} aria-pressed={filters.category===c} onClick={()=>setFilters(f=>({...f,category:c}))}>{c}</button>)}</div><form className="dash-card catalog-filters" onSubmit={e=>submitSearch(e)}><div className="filters"><label>Buscar<input value={draft} onChange={e=>setDraft(e.target.value)} maxLength="100" placeholder="Nombre, categoría o productor"/></label><label>Precio mínimo (€)<input type="number" min="0" step="0.01" value={filters.min} onChange={e=>setFilters(f=>({...f,min:e.target.value}))}/></label><label>Precio máximo (€)<input type="number" min={filters.min||0} step="0.01" value={filters.max} onChange={e=>setFilters(f=>({...f,max:e.target.value}))}/></label><label>Origen<input value={filters.origin} onChange={e=>setFilters(f=>({...f,origin:e.target.value}))} placeholder="Municipio o zona"/></label><label>Productor<select value={filters.producer} onChange={e=>setFilters(f=>({...f,producer:e.target.value}))}><option value="">Todos</option>{[...new Map(products.map(p=>[p.sellerId,p])).values()].map(p=><option key={p.sellerId} value={p.sellerId}>{p.maker}</option>)}</select></label><label>Ordenar<select value={filters.sort} onChange={e=>setFilters(f=>({...f,sort:e.target.value}))}><option value="popular">Popularidad local</option><option value="price-asc">Precio: menor a mayor</option><option value="price-desc">Precio: mayor a menor</option><option value="rating">Valoración registrada</option></select></label></div><div className="button-row"><button className="dark-button">Buscar productos</button><button type="button" className="secondary" onClick={()=>{setDraft('');setFilters({term:'',category:'Todo',min:'',max:'',origin:'',producer:'',sort:'popular'})}}>Limpiar filtros</button></div><p className="help">Popularidad y orden por valoración usan actividad local registrada, sin sumar ejemplos. Las búsquedas se registran al pulsar Buscar, nunca al escribir.</p></form><div className="suggestions"><span>Prueba con:</span>{suggestions.slice(0,4).map(s=><button key={s} onClick={()=>submitSearch(null,s)}>{s}</button>)}</div>{shown.length?<div className="products">{shown.map(p=><ProductCard key={p.id} product={p} onOpen={open} onContact={contact} reviews={data.reviews}/>)}</div>:<p className="empty">No hay resultados. Prueba otra búsqueda o elimina los filtros.</p>}</section>
+ <section className="section trends"><p className="eyebrow">INTERÉS EN EL CATÁLOGO</p><h2>Productos populares.</h2><p className="help">Solo visualizaciones locales consentidas. No equivalen a ventas ni a usuarios únicos.</p>{data.views.some(v=>!v.demo)?<div className="products">{selectProducts(products,{term:'',category:'Todo',sort:'popular'},data.views.filter(v=>!v.demo)).filter(p=>data.views.some(v=>!v.demo&&v.productId===p.id)).slice(0,4).map(p=><ProductCard key={p.id} product={p} onOpen={open} onContact={contact} reviews={data.reviews}/>)}</div>:<p className="empty">Aún no hay actividad local suficiente para mostrar tendencias.</p>}</section>
+ <section className="section" id="productores"><p className="eyebrow">EL ORIGEN IMPORTA</p><h2>Conoce a los productores.</h2><p className="help">Perfiles de demostración, sin contactos comerciales inventados.</p><div className="highlight-grid">{data.producers.map(p=><article className="dash-card" key={p.id}><h3>{p.name}</h3><p>{p.origin}, Madrid</p><button className="text-button" onClick={()=>{setFilters(f=>({...f,producer:p.id}));window.location.hash='explorar'}}>Ver sus productos →</button></article>)}</div></section>
+ <section className="how section" id="como-funciona"><div><p className="eyebrow">CÓMO FUNCIONA</p><h2>Local, sencillo y directo.</h2></div><div className="steps"><div><b>01</b><h3>Busca</h3><p>Descubre quesos, vinos y embutidos elaborados en Madrid.</p></div><div><b>02</b><h3>Conoce</h3><p>Consulta su origen, su productor y su disponibilidad.</p></div><div><b>03</b><h3>Conecta</h3><p>El contacto y la compra directa requieren conectar un directorio verificado. Esta versión no procesa pagos.</p></div></div></section>
+ <section className="join section"><div><p className="eyebrow">IMPULSAMOS EL PRODUCTO DE MADRID</p><h2>Haz visible<br/><em>lo que haces.</em></h2></div><div><p>Una iniciativa de promoción del producto local y conocimiento de la demanda, concebida para explorar colaboración institucional. No existe una subvención confirmada en esta versión.</p><a className="primary-button inline-button" href="#vendedor">Ir a Soy vendedor →</a></div></section></main>}
+ <footer><a className="brand" href="#inicio"><span>G</span> Gastro<span>Madrid</span></a><p>Viviendo Madrid a través del paladar.</p><button className="privacy-link" onClick={()=>setPrivacy(true)}>Privacidad y analítica</button><small>© 2026 GastroMadrid</small></footer>
+ {data&&(data.consent==='pending'||privacy)&&<section className="consent-panel" role="region" aria-label="Preferencias de analítica"><h2>Tu privacidad, cerca.</h2><p>Podemos guardar búsquedas, clics y visitas en este navegador para analizar el interés. Es opcional y no se envía a un servidor. No guardamos identificadores de personas ni ubicación. El almacenamiento del catálogo es necesario para conservar tus cambios.</p><div className="button-row"><button className="dark-button" onClick={()=>consent(true)}>Aceptar analítica</button><button className="secondary" onClick={()=>consent(false)}>Rechazar analítica</button>{privacy&&<><button className="danger" onClick={()=>{mutate(clearCollectedAnalytics);setPrivacy(false);showNotice('Eventos locales eliminados y analítica desactivada.')}}>Borrar mis eventos locales</button><button className="secondary" onClick={()=>setPrivacy(false)}>Cerrar</button></>}</div><p className="help">No incluyas información personal en las búsquedas. Las consultas con formato de correo, URL o secuencias largas de cifras se excluyen del registro.</p></section>}
+ {notice&&<div role="status" className="toast">{notice}</div>}
+ </>
 }
-
-function ProductCard({ product, onContact }) {
-  return <article className="product-card">
-    <img src={product.image} alt={product.name} />
-    <div className="product-info">
-      <span className="tag">{product.detail}</span>
-      <h3>{product.name}</h3>
-      <p className="maker">{product.maker}</p>
-      <p className="place"><Pin /> {product.place}</p>
-      <button className="text-button" onClick={() => onContact(product)}>Contactar <span>→</span></button>
-    </div>
-  </article>
-}
-
-function App() {
-  const [activeCategory, setActiveCategory] = useState('Todo')
-  const [search, setSearch] = useState('')
-  const [notice, setNotice] = useState('')
-  const [role, setRole] = useState('comprador')
-
-  const shownProducts = useMemo(() => products.filter((product) => {
-    const matchesCategory = activeCategory === 'Todo' || product.detail === activeCategory
-    const query = `${product.name} ${product.maker} ${product.place}`.toLowerCase()
-    return matchesCategory && query.includes(search.toLowerCase())
-  }), [activeCategory, search])
-
-  function showNotice(message) {
-    setNotice(message)
-    window.setTimeout(() => setNotice(''), 2800)
-  }
-
-  return <>
-    <header className="topbar">
-      <a className="brand" href="#inicio" aria-label="GastroMadrid, inicio"><span>G</span> Gastro<span>Madrid</span><small>/ LOCAL NETWORK</small></a>
-      <nav aria-label="Navegación principal">
-        <a href="#explorar">Explorar</a>
-        <a href="#como-funciona">Cómo funciona</a>
-      </nav>
-      <button className="outline-button header-button" onClick={() => showNotice('El registro estará disponible pronto')}>Entrar / registrarme</button>
-    </header>
-
-    <main id="inicio">
-      <section className="hero">
-        <div className="hero-kicker"><span>01</span><p className="eyebrow">COMUNIDAD DE MADRID</p></div>
-        <p className="hero-location">MADRID / LOCAL FOOD NETWORK</p>
-        <h1>Viviendo Madrid<br /><em>a través del paladar.</em></h1>
-        <p className="hero-copy">Descubre pequeñas empresas de Madrid y contacta directamente con quienes hacen lo que buscas.</p>
-        <div className="hero-audience">
-          <p className="audience-label">UNA PLATAFORMA PARA DOS LADOS</p>
-          <div className="role-switcher" aria-label="Selecciona tu perfil">
-            <button className={role === 'comprador' ? 'active' : ''} onClick={() => setRole('comprador')}><strong>Soy comprador</strong><span>Quiero encontrar productos y empresas locales.</span></button>
-            <button className={role === 'empresa' ? 'active' : ''} onClick={() => setRole('empresa')}><strong>Tengo una empresa</strong><span>Quiero mostrar lo que hago y encontrar clientes.</span></button>
-          </div>
-        </div>
-        <form className="search-box" onSubmit={(event) => { event.preventDefault(); document.querySelector('#explorar')?.scrollIntoView({ behavior: 'smooth' }) }}>
-          <Search />
-          <input aria-label="Buscar productos, empresas o zonas" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Busca productos, empresas o municipios" />
-          <button>Buscar</button>
-        </form>
-        <div className="hero-image"><img src={products[1].image} alt="Tomates de un productor local de Madrid" /><span>Producto local, cerca de ti</span><b>02</b></div>
-      </section>
-
-      <section className="catalog section" id="explorar">
-        <div className="section-heading">
-          <div><div className="section-index"><span>02</span><p className="eyebrow">DIRECTORIO LOCAL</p></div><h2>Explora la comunidad.</h2></div>
-          <span className="result-count">{shownProducts.length} resultados</span>
-        </div>
-        <div className="category-list" aria-label="Filtrar por categoría">
-          {categories.map((category) => <button key={category} className={activeCategory === category ? 'active' : ''} onClick={() => setActiveCategory(category)}>{category}</button>)}
-        </div>
-        {shownProducts.length > 0 ? <div className="products">{shownProducts.map((product) => <ProductCard key={product.name} product={product} onContact={(item) => showNotice(`Te pondremos en contacto con ${item.maker}`)} />)}</div> : <p className="empty-state">No hemos encontrado resultados. Prueba con otra búsqueda.</p>}
-      </section>
-
-      <section className="how section" id="como-funciona">
-        <div><p className="eyebrow">CÓMO FUNCIONA</p><h2>Local, sencillo y directo.</h2></div>
-        <div className="steps">
-          <div><b>01</b><h3>Busca</h3><p>Encuentra productos y empresas de tu zona.</p></div>
-          <div><b>02</b><h3>Descubre</h3><p>Conoce su historia, ubicación y oferta.</p></div>
-          <div><b>03</b><h3>Contacta</h3><p>Habla directamente y llega a un acuerdo.</p></div>
-        </div>
-      </section>
-
-      <section className="join section">
-        <div><p className="eyebrow">PARA EMPRESAS LOCALES</p><h2>Haz visible<br /><em>lo que haces.</em></h2></div>
-        <div><p>GastroMadrid funcionará con un modelo freemium para que las pequeñas empresas puedan empezar a conectar con compradores de la Comunidad de Madrid.</p><button className="primary-button" onClick={() => showNotice('El registro de empresas estará disponible pronto')}>Registrar mi empresa <span>→</span></button></div>
-      </section>
-    </main>
-
-    <footer><a className="brand" href="#inicio"><span>G</span> Gastro<span>Madrid</span></a><p>Viviendo Madrid a través del paladar.</p><small>© 2026 GastroMadrid</small></footer>
-    {notice && <div role="status" className="toast">{notice}</div>}
-  </>
-}
-
-createRoot(document.getElementById('root')).render(<StrictMode><App /></StrictMode>)
+createRoot(document.getElementById('root')).render(<StrictMode><App/></StrictMode>)
