@@ -53,7 +53,13 @@ export function createExample() {
   const views=Array.from({length:360},(_,i)=>({id:`view-${i}`,productId:products[i%products.length].id,date:dateAgo(i%82),demo:true}))
   const reviews=Array.from({length:54},(_,i)=>({id:`review-${i}`,productId:products[i%products.length].id,stars:[5,4,5,3,4,2,4][i%7],text:['Excelente sabor.','Buena presentación y calidad.','Una opción de proximidad para repetir.'][i%3],date:dateAgo(i*2),demo:true}))
   const searches=Array.from({length:240},(_,i)=>({id:`search-${i}`,term:['queso artesanal','vino tinto','chorizo artesanal','cocina italiana','cocina china','cocina mexicana','queso de cabra','vino blanco'][i%8],category:products[i%products.length].category,productIds:i%11===4?[]:[products[i%products.length].id],resultCount:i%11===4?0:1,date:dateAgo(i%60),demo:true}))
-  return {version:2,products,producers,views,reviews,searches,clicks:[],transactions:[],lastViews:{},consent:'pending',archivedProducts:[]}
+  const clicks=Array.from({length:128},(_,i)=>({id:`click-${i}`,productId:products[(i*3)%products.length].id,date:dateAgo((i*2)%75),demo:true}))
+  const transactions=Array.from({length:72},(_,i)=>{
+    const product=products[(i*5)%products.length]
+    const quantity=1+(i%3)
+    return {id:`transaction-${i}`,orderId:`demo-order-${Math.floor(i/2)}`,productId:product.id,quantity,amount:Number((product.price*quantity).toFixed(2)),status:'completed',date:dateAgo((i*3)%78),demo:true}
+  })
+  return {version:2,products,producers,views,reviews,searches,clicks,transactions,lastViews:{},consent:'pending',archivedProducts:[]}
 }
 export function readStore() {
   const raw=localStorage.getItem(KEY)
@@ -63,6 +69,10 @@ export function readStore() {
     const examples=createExample()
     data.products=[...data.products,...examples.products.filter(example=>!data.products.some(product=>product.id===example.id))]
     data.products=data.products.map(p=>({...p,cuisines:Array.isArray(p.cuisines)?p.cuisines:['Cocina española'],image:p.image||p.images?.[0]||productImages[p.id]||fallbackImages[p.category]}))
+    for(const key of ['views','reviews','searches','clicks','transactions']) {
+      const existingIds=new Set(data[key].map(event=>event.id))
+      data[key]=[...data[key],...examples[key].filter(event=>event.demo&&!existingIds.has(event.id))]
+    }
     return data
   }
   const data=createExample(); const old=localStorage.getItem(LEGACY_KEY)

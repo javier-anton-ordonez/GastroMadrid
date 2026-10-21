@@ -32,7 +32,7 @@ function ProductForm({product,onSave,onCancel}) {
   </form></section>
 }
 export default function Panel({data,onChange}) {
- const [tab,setTab]=useState('Resumen');const [editor,setEditor]=useState(null);const [deleting,setDeleting]=useState(null);const [query,setQuery]=useState('');const [message,setMessage]=useState('');const [error,setError]=useState('');const [group,setGroup]=useState('Semana');const [stars,setStars]=useState('');const [sort,setSort]=useState('desc');const [filters,setFilters]=useState({source:'local',days:90,from:'',to:'',category:'',product:''})
+ const [tab,setTab]=useState('Resumen');const [editor,setEditor]=useState(null);const [deleting,setDeleting]=useState(null);const [query,setQuery]=useState('');const [message,setMessage]=useState('');const [error,setError]=useState('');const [group,setGroup]=useState('Semana');const [stars,setStars]=useState('');const [sort,setSort]=useState('desc');const [filters,setFilters]=useState({source:'demo',days:90,from:'',to:'',category:'',product:''})
  const products=data.products.filter(p=>p.sellerId===SELLER);const stats=useMemo(()=>analyze(data,filters,SELLER),[data,filters]);const popular=[...stats.ranked].sort((a,b)=>b.views-a.views);const rated=stats.ranked.filter(p=>p.reviewCount).sort((a,b)=>b.rating-a.rating);const reviews=stats.reviews.filter(r=>!stars||r.stars===Number(stars)).sort((a,b)=>sort==='desc'?new Date(b.date)-new Date(a.date):new Date(a.date)-new Date(b.date))
  function commit(next,text){try {onChange(next);setMessage(text);setError('');return true}catch(e){setError(e.message);return false}}
  const tabs=['Resumen','Mis productos','Analíticas','Valoraciones']
