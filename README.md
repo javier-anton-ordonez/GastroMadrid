@@ -311,5 +311,3 @@ En muchas tradiciones, compartir el pan y valorar la comida tienen un significad
 
 Si se desea expresar de forma más prudente, puede afirmarse que el proyecto **no posee un significado religioso explícito**, pero su propósito es compatible con valores éticos y espirituales ampliamente compartidos: cuidado del alimento, justicia hacia los pequeños productores, sostenibilidad y responsabilidad social.
 
-
-primer y unico cambio de irene
