@@ -87,8 +87,12 @@ export function saveProduct(data,product) {
   if(existing&&existing.sellerId!==SELLER) throw new Error('No puedes modificar productos de otro vendedor.')
   if(!categories.includes(product.category)||!product.name?.trim()||!product.description?.trim()||!product.maker?.trim()||!product.place?.trim()) throw new Error('Completa nombre, descripción, categoría, productor y origen.')
   if(!Number.isFinite(product.price)||product.price<=0||product.price>1000000||product.stock!==null&&(!Number.isInteger(product.stock)||product.stock<0)) throw new Error('Precio o stock no válido.')
+  const minOrder=product.minOrder??null
+  const maxOrder=product.maxOrder??null
+  if([minOrder,maxOrder].some(value=>value!==null&&(!Number.isSafeInteger(value)||value<1))) throw new Error('El pedido mínimo y máximo deben ser cantidades enteras mayores que cero.')
+  if(minOrder!==null&&maxOrder!==null&&maxOrder<minOrder) throw new Error('El pedido máximo no puede ser menor que el pedido mínimo.')
   if(!Array.isArray(product.images)||product.images.length>4) throw new Error('Máximo cuatro imágenes.')
-  const clean={...product,sellerId:SELLER,image:product.images[0]||'',demo:existing?.demo??false}
+  const clean={...product,minOrder,maxOrder,sellerId:SELLER,image:product.images[0]||'',demo:existing?.demo??false}
   return {...data,products:existing?data.products.map(p=>p.id===clean.id?clean:p):[...data.products,clean]}
 }
 export function removeProduct(data,id) {

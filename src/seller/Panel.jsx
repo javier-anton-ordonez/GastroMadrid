@@ -5,7 +5,7 @@ import Filters from '../analytics/Filters'
 import Chart from '../components/Chart'
 const euros=n=>new Intl.NumberFormat('es-ES',{style:'currency',currency:'EUR'}).format(n)
 function ProductForm({product,onSave,onCancel}) {
-  const [form,setForm]=useState(product||{id:crypto.randomUUID(),name:'',description:'',category:'Quesos',maker:'Quesería de demostración',place:'Miraflores de la Sierra',price:'',stock:'',available:true,visible:true,images:[]})
+  const [form,setForm]=useState(product||{id:crypto.randomUUID(),name:'',description:'',category:'Quesos',maker:'Quesería de demostración',place:'Miraflores de la Sierra',price:'',stock:'',minOrder:'',maxOrder:'',available:true,visible:true,images:[]})
   const [error,setError]=useState('')
   const field=(key,value)=>setForm(f=>({...f,[key]:value}))
   async function filesChanged(event) {
@@ -16,13 +16,15 @@ function ProductForm({product,onSave,onCancel}) {
       field('images',[...form.images,...images]);setError('')
     } catch(e){setError(e.message)}
   }
-  return <section className="dash-card"><h2>{product?'Editar producto':'Añadir producto'}</h2><form className="product-form" onSubmit={e=>{e.preventDefault();if(!form.name.trim()||!form.description.trim()||!Number.isFinite(Number(form.price))||Number(form.price)<=0|| (form.stock!==''&&(!Number.isInteger(Number(form.stock))||Number(form.stock)<0))) {setError('Revisa el nombre, la descripción, el precio y el stock.');return}try { onSave({...form,name:form.name.trim(),description:form.description.trim(),price:Number(form.price),stock:form.stock===''?null:Number(form.stock)}) } catch(err) {setError(err.message)}}}>
+  return <section className="dash-card"><h2>{product?'Editar producto':'Añadir producto'}</h2><form className="product-form" onSubmit={e=>{e.preventDefault();if(!form.name.trim()||!form.description.trim()||!Number.isFinite(Number(form.price))||Number(form.price)<=0|| (form.stock!==''&&(!Number.isInteger(Number(form.stock))||Number(form.stock)<0))) {setError('Revisa el nombre, la descripción, el precio y el stock.');return}try { onSave({...form,name:form.name.trim(),description:form.description.trim(),price:Number(form.price),stock:form.stock===''?null:Number(form.stock),minOrder:form.minOrder==null||form.minOrder===''?null:Number(form.minOrder),maxOrder:form.maxOrder==null||form.maxOrder===''?null:Number(form.maxOrder)}) } catch(err) {setError(err.message)}}}>
     <label>Nombre<input required maxLength="100" value={form.name} onChange={e=>field('name',e.target.value)}/></label>
     <label>Categoría<select value={form.category} onChange={e=>field('category',e.target.value)}>{categories.map(c=><option key={c}>{c}</option>)}</select></label>
     <label>Productor<input required maxLength="120" value={form.maker} onChange={e=>field('maker',e.target.value)}/></label><label>Origen en la Comunidad de Madrid<input required maxLength="120" value={form.place} onChange={e=>field('place',e.target.value)}/></label>
     <label className="wide">Descripción<textarea required maxLength="2000" rows="4" value={form.description} onChange={e=>field('description',e.target.value)}/></label>
     <label>Precio (€)<input required type="number" min="0.01" max="1000000" step="0.01" value={form.price} onChange={e=>field('price',e.target.value)}/></label>
     <label>Stock (opcional)<input type="number" min="0" step="1" value={form.stock??''} onChange={e=>field('stock',e.target.value)}/></label>
+    <label>Pedido mínimo (unidades, opcional)<input type="number" min="1" step="1" value={form.minOrder??''} onChange={e=>field('minOrder',e.target.value)} placeholder="Sin mínimo especificado"/></label>
+    <label>Pedido máximo (unidades, opcional)<input type="number" min={form.minOrder||1} step="1" value={form.maxOrder??''} onChange={e=>field('maxOrder',e.target.value)} placeholder="Sin máximo especificado"/></label>
     <label className="wide">Imágenes · hasta 4, máximo 750 KB por imagen<input type="file" accept="image/jpeg,image/png,image/webp" multiple onChange={filesChanged}/></label>
     <div className="image-previews wide">{form.images.map((src,i)=><div key={i}><img src={src} alt={`Imagen ${i+1}`}/><button type="button" onClick={()=>field('images',form.images.filter((_,j)=>j!==i))}>Quitar imagen {i+1}</button></div>)}</div>
     <label className="check"><input type="checkbox" checked={form.available} onChange={e=>field('available',e.target.checked)}/> Disponible</label><label className="check"><input type="checkbox" checked={form.visible} onChange={e=>field('visible',e.target.checked)}/> Visible en el catálogo</label>
