@@ -310,3 +310,6 @@ Aunque GastroMadrid no tiene una finalidad religiosa explícita, su actividad pu
 En muchas tradiciones, compartir el pan y valorar la comida tienen un significado que va más allá de la nutrición: representan hospitalidad, comunidad, cuidado del prójimo y reconocimiento de la dignidad del trabajo humano. Bajo esta lectura, la misión de GastroMadrid puede entenderse como una forma de **poner en valor el alimento, a quien lo elabora y a la comunidad que lo comparte**.
 
 Si se desea expresar de forma más prudente, puede afirmarse que el proyecto **no posee un significado religioso explícito**, pero su propósito es compatible con valores éticos y espirituales ampliamente compartidos: cuidado del alimento, justicia hacia los pequeños productores, sostenibilidad y responsabilidad social.
+
+
+primer y unico cambio de irene
