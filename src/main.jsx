@@ -47,7 +47,7 @@ function App() {
     <header className="topbar">
       <a className="brand" href="#inicio" aria-label="GastroMadrid, inicio"><span>G</span> Gastro<span>Madrid</span></a>
       <nav aria-label="Navegación principal"><a href="#explorar">Explorar</a><a href="#productores">Productores</a><a href="#como-funciona">Cómo funciona</a></nav>
-      <div className="header-actions"><button className="location" onClick={() => showNotice('Estamos buscando productores en la Comunidad de Madrid')}><Pin /> Comunidad de Madrid</button><button className="login" onClick={() => showNotice('El acceso para hostelería estará disponible pronto')}>Soy hostelero <Arrow /></button></div>
+      <div className="header-actions"><button className="location" onClick={() => showNotice('Estamos buscando empresas y compradores en la Comunidad de Madrid')}><Pin /> Comunidad de Madrid</button><button className="login" onClick={() => showNotice('El registro para compradores y empresas estará disponible pronto')}>Entrar o registrarme <Arrow /></button></div>
     </header>
 
     <main id="inicio">
@@ -55,29 +55,29 @@ function App() {
         <div className="hero-content">
           <p className="eyebrow">PRODUCTO LOCAL · COMUNIDAD DE MADRID</p>
           <h1>El ingrediente<br/><em>que buscas,</em><br/>está aquí.</h1>
-          <p className="hero-copy">Conectamos a hosteleros con productores madrileños para que cada plato tenga una historia de proximidad.</p>
+          <p className="hero-copy">Conectamos a pequeñas empresas madrileñas con compradores de la Comunidad de Madrid para descubrir, contactar y consumir local.</p>
           <form className="search-box" onSubmit={(event) => { event.preventDefault(); document.querySelector('#explorar')?.scrollIntoView({ behavior: 'smooth' }) }}>
-            <Search /><input aria-label="Buscar productos o necesidades" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Busca un producto, una zona o una necesidad..." /><button>Encontrar</button>
+            <Search /><input aria-label="Buscar productos, empresas o zonas" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Busca un producto, una empresa o una zona..." /><button>Encontrar</button>
           </form>
           <div className="hero-labels"><span>+120 productores</span><span>Producto de temporada</span><span>Trato directo</span></div>
         </div>
         <aside className="floating-card"><div className="mini-photo"></div><p>Productor destacado</p><strong>Miel Antonio Simón</strong><span>Torremocha de Jarama</span><a href="#productores">Ver productor <Arrow /></a></aside>
       </section>
 
-      <section className="match-band"><div><p className="eyebrow">EL MATCH MADRILEÑO</p><h2>Cuéntanos qué necesitas.<br/><i>Nosotros buscamos quién lo hace.</i></h2></div><button className="dark-button" onClick={() => showNotice('Cuéntanos tu necesidad y te pondremos en contacto')}>Publicar una necesidad <Arrow /></button></section>
+      <section className="match-band"><div><p className="eyebrow">EL MATCH MADRILEÑO</p><h2>Encuentra lo que buscas.<br/><i>Haz visible lo que haces.</i></h2><p className="match-copy">Una comunidad local para comprar cerca y dar oportunidades a las pequeñas empresas de Madrid.</p></div><button className="dark-button" onClick={() => showNotice('Cuéntanos qué buscas o qué ofrece tu empresa')}>Publicar una necesidad <Arrow /></button></section>
 
       <section className="market section" id="explorar">
-        <div className="section-heading"><div><p className="eyebrow">EXPLORA EL CATÁLOGO</p><h2>Ingredientes con <i>origen.</i></h2><p className="section-intro">Descubre proveedores locales para tu carta, tu hotel o tu próximo evento.</p></div><a href="#productores">Ver productores <Arrow /></a></div>
+        <div className="section-heading"><div><p className="eyebrow">EXPLORA LA COMUNIDAD</p><h2>Productos con <i>origen.</i></h2><p className="section-intro">Descubre productos y pequeñas empresas de la Comunidad de Madrid para tu compra, tu negocio o tu próximo evento.</p></div><a href="#productores">Ver empresas <Arrow /></a></div>
         <div className="category-strip" aria-label="Categorías de productos">{categories.map((category) => <button key={category} className={activeCategory === category ? 'selected' : ''} onClick={() => setActiveCategory(category)}>{category}</button>)}</div>
-        <div className="results-bar"><span>{shownProducts.length} resultados para tu negocio</span><span className="availability">● Productores disponibles esta semana</span></div>
+        <div className="results-bar"><span>{shownProducts.length} resultados en la Comunidad de Madrid</span><span className="availability">● Empresas activas esta semana</span></div>
         <div className="products">{shownProducts.map(product => <ProductCard key={product.name} product={product} onConnect={(item) => showNotice(`Te conectaremos con ${item.maker}`)} />)}</div>
       </section>
 
       <section className="origin section" id="productores"><div className="map-card"><div className="map-grid"></div><span className="map-pin one">●</span><span className="map-pin two">●</span><span className="map-pin three">●</span><span className="map-pin four">●</span><div className="map-city">MADRID</div></div><div className="origin-copy"><p className="eyebrow">DE AQUÍ, DE VERDAD</p><h2>Una red que empieza<br/><i>en el territorio.</i></h2><p>Del campo a la mesa, sin intermediarios innecesarios. Conoce quién produce, dónde está y qué puede aportar a tu negocio.</p><button className="outline-button" onClick={() => showNotice('El mapa de productores estará disponible pronto')}>Explorar el mapa <Arrow /></button></div></section>
 
-      <section className="how section" id="como-funciona"><div><p className="eyebrow">CÓMO FUNCIONA</p><h2>Tu próxima<br/><i>gran colaboración.</i></h2></div><div className="steps"><div><b>01</b><h3>Explica lo que buscas</h3><p>Indica el producto, volumen o tipo de proveedor que necesita tu negocio.</p></div><div><b>02</b><h3>Descubre tu match</h3><p>Te mostramos productores de la Comunidad de Madrid que encajan contigo.</p></div><div><b>03</b><h3>Hablad directamente</h3><p>Contacta sin intermediarios y construye una relación a largo plazo.</p></div></div></section>
+      <section className="how section" id="como-funciona"><div><p className="eyebrow">CÓMO FUNCIONA</p><h2>Comprar cerca.<br/><i>Crecer juntos.</i></h2><p className="section-intro">GastroMadrid funcionará con un modelo freemium: empezamos con una base abierta para conectar a la comunidad y más adelante añadiremos servicios premium.</p></div><div className="steps"><div><b>01</b><h3>Busca o publica</h3><p>Encuentra un producto o cuéntanos qué ofrece tu pequeña empresa.</p></div><div><b>02</b><h3>Descubre tu match</h3><p>Te mostramos empresas y compradores de tu zona con intereses compatibles.</p></div><div><b>03</b><h3>Conecta directamente</h3><p>Hablad, acordad los detalles y construid relaciones comerciales locales.</p></div></div></section>
 
-      <section className="seller-banner"><div><p className="eyebrow">¿ERES PRODUCTOR?</p><h2>Tu producto merece<br/>estar en <i>más mesas.</i></h2></div><p>Haz visible tu catálogo para los profesionales que buscan exactamente lo que tú haces.</p><button className="light-button" onClick={() => showNotice('Pronto podrás registrar tu proyecto')}>Quiero aparecer <Arrow /></button></section>
+      <section className="seller-banner"><div><p className="eyebrow">¿TIENES UNA PEQUEÑA EMPRESA?</p><h2>Lo que haces merece<br/>llegar <i>más lejos.</i></h2></div><p>Haz visible tu catálogo y conecta con compradores de la Comunidad de Madrid que quieren apostar por lo local.</p><button className="light-button" onClick={() => showNotice('Pronto podrás registrar tu empresa')}>Registrar mi empresa <Arrow /></button></section>
     </main>
 
     <footer><a className="brand" href="#inicio"><span>G</span> Gastro<span>Madrid</span></a><p>Viviendo Madrid a través del paladar.</p><div><a href="#explorar">Explorar</a><a href="#productores">Productores</a><a href="#como-funciona">Cómo funciona</a></div><small>© 2026 GastroMadrid</small></footer>
