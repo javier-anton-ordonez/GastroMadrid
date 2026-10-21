@@ -1,12 +1,5 @@
 # GastroMadrid
 
-## Estado actual — producto local e inteligencia de mercado
-
-Implementación React/Vite con catálogo de **quesos, vinos y charcutería y embutidos**, panel vendedor local y demostración de inteligencia de mercado. El objetivo actual prioriza promoción de productores y conocimiento agregado de la demanda, con colaboración institucional potencial; no existe financiación confirmada. No hay backend, acceso privado real ni transacciones. Los datos de ejemplo se distinguen de la actividad local consentida.
-
-Consulta [la implementación, las rutas, el modelo de datos y las integraciones pendientes](docs/IMPLEMENTATION.md). El documento conceptual que sigue incluye propuestas históricas de monetización y categorías más amplias; no describe funciones ya desplegadas ni modifica el alcance actual de tres categorías.
-
-
 **GastroMadrid** es una plataforma para descubrir negocios locales que ofrecen productos gastronómicos de calidad, elaborados por pequeñas empresas y productores que normalmente no tienen presencia en los canales comerciales más visibles.
 
 Su objetivo es acercar a los usuarios un catálogo gastronómico formado por pequeños productores, artesanos y negocios locales de Madrid, facilitando el descubrimiento, la visibilidad y el contacto directo entre compradores y vendedores.
@@ -281,40 +274,38 @@ flowchart TB
 - Mapa interactivo de productores y rutas gastronómicas por Madrid.
 - Ampliación de la analítica con modelos predictivos de demanda y tendencias.
 
-## 9. Dimensión ética, moral y religiosa del proyecto
+## 9. Dimensión ética y moral del proyecto
 
-### 9.1 Significado inmediato del reto de negocio
+### Protección de datos y privacidad
 
-El reto de negocio de GastroMadrid consiste en mejorar la visibilidad de pequeños productores y negocios gastronómicos locales que, pese a ofrecer productos de calidad, tienen dificultades para competir con las grandes marcas y los canales comerciales más visibles.
+GastroMadrid maneja datos de contacto, ubicación y actividad de los usuarios. Por eso:
 
-El significado inmediato es, por tanto, **reducir la desigualdad de visibilidad** dentro del sector gastronómico. La plataforma no busca sustituir la relación comercial entre comprador y vendedor, sino facilitar que ambos puedan descubrirse y conectar. Aplus Gastromarketing entiende la gastronomía como un motor de desarrollo económico y social, y trabaja para poner en valor productos, territorios y operadores del sector HORECA.
+- Cumple el RGPD: pide consentimiento en el registro y permite acceder, corregir o borrar los datos.
+- Recoge solo los datos necesarios y no almacena datos bancarios, porque no procesa pagos.
+- Delega la autenticación en un servicio especializado (Supabase Auth).
+- Las analíticas para terceros son siempre agregadas y anónimas, y no se publican cuando hay tan pocos negocios que alguno podría identificarse.
 
-### 9.2 Propósito de la misión
+### Impacto social y territorial
 
-La misión de GastroMadrid tiene un propósito doble:
+La plataforma da visibilidad a pequeños productores de la Comunidad de Madrid, impulsa el consumo de producto local y acerca a productores, hostelería y consumidores.
 
-- **Económico:** ayudar a pequeños productores y negocios locales a alcanzar mayor visibilidad, mejorar su posicionamiento y acceder a nuevas oportunidades de contacto con compradores.
-- **Social y cultural:** promover el consumo de productos locales y artesanales, acercar a las personas a la gastronomía de su territorio y contribuir a mantener viva la diversidad gastronómica de Madrid.
+Para evitar efectos no deseados, se tiene en cuenta que:
 
-En este sentido, la misión no se limita a promocionar productos: busca dar relevancia a personas, oficios y formas de producción que forman parte del patrimonio gastronómico local. Aplus Gastromarketing plantea la gastronomía como cultura, territorio, consumo, experiencia y negocio, lo que refuerza esta visión integral del sector. [24]
+- La demanda no se concentre en unos pocos productores, rotando los perfiles destacados.
+- Los productores pequeños indiquen su capacidad, con compra mínima y máxima en la ficha.
+- Quienes tienen menos recursos digitales puedan darse de alta con un proceso sencillo.
 
-### 9.3 Lectura ética y moral
+### Transparencia
 
-Desde una perspectiva ética, GastroMadrid responde a una idea sencilla pero importante: **la comida no debería desperdiciarse ni su valor debería quedar oculto**. En un contexto en el que muchas personas pasan hambre mientras se desperdician alimentos, dar visibilidad a productos locales de calidad puede contribuir a un consumo más consciente, cercano y responsable.
+- Las fichas distinguen los datos verificados por la plataforma de los declarados por el vendedor.
+- Los resultados patrocinados y los anuncios se identifican siempre como tales.
+- Si hay recomendaciones con IA, cada una explica por qué se sugiere y no puede inventar datos que no estén en la ficha.
+- La suscripción informa con claridad de precio, contenido y cómo cancelar.
+- Los términos de uso aclaran que las compras se hacen directamente entre comprador y vendedor.
 
-La plataforma puede fomentar valores como:
+### Equidad
 
-- **Valoración del alimento:** reconocer el trabajo, el tiempo y los recursos que existen detrás de cada producto artesanal.
-- **Consumo responsable:** favorecer productos locales, de proximidad y elaborados por pequeños productores.
-- **Equidad de oportunidades:** ofrecer visibilidad a negocios que no disponen de los recursos de las grandes empresas.
-- **Sostenibilidad:** impulsar una gastronomía más consciente con el territorio, la producción local y la reducción del desperdicio.
-- **Comunidad:** fortalecer la relación entre productores, compradores y territorio.
-
-### 9.4 Posible sentido religioso
-
-Aunque GastroMadrid no tiene una finalidad religiosa explícita, su actividad puede relacionarse con valores presentes en distintas tradiciones religiosas y humanistas: la gratitud por el alimento, la solidaridad con quien lo produce, la moderación en el consumo y el deber de no desperdiciar lo que otras personas necesitan.
-
-En muchas tradiciones, compartir el pan y valorar la comida tienen un significado que va más allá de la nutrición: representan hospitalidad, comunidad, cuidado del prójimo y reconocimiento de la dignidad del trabajo humano. Bajo esta lectura, la misión de GastroMadrid puede entenderse como una forma de **poner en valor el alimento, a quien lo elabora y a la comunidad que lo comparte**.
-
-Si se desea expresar de forma más prudente, puede afirmarse que el proyecto **no posee un significado religioso explícito**, pero su propósito es compatible con valores éticos y espirituales ampliamente compartidos: cuidado del alimento, justicia hacia los pequeños productores, sostenibilidad y responsabilidad social.
-
+- Todo vendedor validado aparece en el catálogo, pague o no un plan.
+- El plan de visibilidad mejora la exposición, pero no sustituye a la relevancia en los resultados.
+- Las recomendaciones se basan en lo que necesita el comprador, no en el tamaño del negocio.
+- Los eventos y la caja sorpresa también sirven para dar a conocer a productores menos conocidos.
