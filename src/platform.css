@@ -6,3 +6,42 @@
 .seller-sidebar{min-width:0}.seller-sidebar nav{max-width:100%}.topbar nav{min-width:0;max-width:100%}
 @media(max-width:850px){.seller-shell{grid-template-columns:minmax(0,1fr)}}
 footer .brand{color:var(--paper);white-space:nowrap}
+
+/* Editorial palette shared by the public and seller analytics views. */
+.seller-shell{
+  --analytics-red:#ad1018;
+  --analytics-peach:#f7cda4;
+  --analytics-cream:#fff8ef;
+  --analytics-coral:#ff7949;
+  background:var(--analytics-cream);
+}
+.seller-shell .seller-sidebar{background:var(--analytics-red);color:#ffe0c4}
+.seller-shell .seller-sidebar .eyebrow{color:var(--analytics-peach)}
+.seller-shell .seller-sidebar h2{color:#fff1df}
+.seller-shell .seller-sidebar h2 i{color:var(--analytics-peach)}
+.seller-shell .seller-sidebar nav button{color:#ffe0c4}
+.seller-shell .seller-sidebar nav button.active{background:var(--analytics-peach);border-color:var(--analytics-peach);color:var(--analytics-red)}
+.seller-shell .seller-content{background:var(--analytics-cream)}
+.seller-shell .dashboard-heading h1{color:var(--analytics-red)}
+.seller-shell .dashboard-heading h1 i{font-family:'Playfair Display',serif;font-style:italic}
+.seller-shell .dashboard-heading .eyebrow,
+.seller-shell .highlight-grid small{color:var(--analytics-red)}
+.seller-shell .badge{background:var(--analytics-peach);border-color:var(--analytics-red);color:var(--analytics-red)}
+.seller-shell .dash-card{background:#fffaf3;border-color:#d3ad91;box-shadow:4px 4px 0 rgba(173,16,24,.1)}
+.seller-shell .metric:nth-child(2n){background:var(--analytics-peach)}
+.seller-shell .metric strong{color:var(--analytics-red)}
+.seller-shell .period-control button{border-color:var(--analytics-red);color:var(--analytics-red)}
+.seller-shell .period-control button.active{background:var(--analytics-red);color:#ffe0c4}
+.seller-shell .chart h3,.seller-shell .dash-card h3{color:#241416}
+.seller-shell .chart-tooltip,.seller-shell .help,.seller-shell .empty{color:#8a4a3b}
+.seller-shell .chart svg rect{fill:var(--analytics-red)}
+.seller-shell .chart svg rect:hover,.seller-shell .chart svg rect:focus{fill:var(--analytics-coral)}
+.seller-shell .chart svg polyline{stroke:var(--analytics-coral)}
+.seller-shell .chart svg circle{fill:var(--analytics-red)}
+.seller-shell .chart svg circle:hover,.seller-shell .chart svg circle:focus{fill:var(--analytics-coral)}
+.seller-shell .demo-banner{background:var(--analytics-peach);border-left-color:var(--analytics-red);color:#35181a}
+.seller-shell .ranking{border-color:#d9b8a0}
+.seller-shell .ranking>b{color:var(--analytics-red)}
+.seller-shell th{border-color:#b87967}
+.seller-shell td{border-color:#ead1bd}
+.seller-shell .district-map path:hover,.seller-shell .district-map path:focus{stroke:var(--analytics-red)}
