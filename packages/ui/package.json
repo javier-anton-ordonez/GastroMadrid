@@ -1,0 +1,10 @@
+{
+  "name": "@gastromadrid/ui",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "index.js",
+  "dependencies": {
+    "react": "latest",
+    "react-dom": "latest"
+  }
+}
